@@ -6,11 +6,15 @@ import (
 
 func main() {
   go func () {
-    println("hello")
+    for i := 0; i < 100; i++ {
+      println("hello")
+    }
   }()
 
   go func() {
-    println("go")
+    for i := 0; i < 100; i++ {
+      println("go")
+    }
   }()
 
   dur, _ := time.ParseDuration("1s")
