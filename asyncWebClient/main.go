@@ -26,11 +26,13 @@ func makeRequest(url string) (map[string]interface{}, error) {
 
 func main() {
   start := time.Now()
-  headers, err := makeRequest("http://localhost:1920")
-  if err != nil {
-    fmt.Println("%v", err)
-  } else {
-    fmt.Println("%v", headers)
-    fmt.Println("time taken ", time.Since(start))
+  for i := 0; i <= 99; i++ {
+    _, err := makeRequest("http://localhost:1920")
+    if err != nil {
+      fmt.Println("%v", err)
+    } else {
+      fmt.Printf("\rmade requests: %v", i)
+    }
   }
+  fmt.Println("\ntime taken ", time.Since(start))
 }
