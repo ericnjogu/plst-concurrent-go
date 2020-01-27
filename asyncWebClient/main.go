@@ -6,9 +6,11 @@ import (
   "fmt"
   "encoding/json"
   "time"
+  "sync"
+  "runtime"
 )
 
-func makeRequest(url string) (map[string]interface{}, error) {
+func makeRequest(url string, wg *sync.WaitGroup) (map[string]interface{}, error) {
   var headers = make(map[string]interface{})
   resp, respErr := http.Get(url)
   if respErr != nil {
@@ -21,18 +23,19 @@ func makeRequest(url string) (map[string]interface{}, error) {
   // https://www.socketloop.com/tutorials/golang-how-to-convert-json-string-to-map-and-slice
   // https://tour.golang.org/methods/14
   err := json.Unmarshal([]byte(body), &headers)
+  wg.Done()
   return headers, err
 }
 
 func main() {
+  runtime.GOMAXPROCS(4)
+  var wg sync.WaitGroup
   start := time.Now()
-  for i := 0; i <= 99; i++ {
-    _, err := makeRequest("http://localhost:1920")
-    if err != nil {
-      fmt.Println("%v", err)
-    } else {
-      fmt.Printf("\rmade requests: %v", i)
-    }
+  limit := 500
+  wg.Add(limit)
+  for i := 0; i < limit; i++ {
+    go makeRequest("http://localhost:1920", &wg)
   }
+  wg.Wait()
   fmt.Println("\ntime taken ", time.Since(start))
 }
