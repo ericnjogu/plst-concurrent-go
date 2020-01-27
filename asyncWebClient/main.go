@@ -5,17 +5,14 @@ import (
   "io/ioutil"
   "fmt"
   "encoding/json"
-  "os"
   "time"
 )
 
-func main() {
-  start := time.Now()
-  resp, respErr := http.Get("http://localhost:1920")
+func makeRequest(url string) (map[string]interface{}, error) {
+  var headers = make(map[string]interface{})
+  resp, respErr := http.Get(url)
   if respErr != nil {
-    println("request failed")
-    fmt.Println("%v", respErr)
-    os.Exit(2)
+    return headers, respErr
   }
 
   defer resp.Body.Close()
@@ -23,11 +20,15 @@ func main() {
 
   // https://www.socketloop.com/tutorials/golang-how-to-convert-json-string-to-map-and-slice
   // https://tour.golang.org/methods/14
-  var headers = make(map[string]interface{})
   err := json.Unmarshal([]byte(body), &headers)
+  return headers, err
+}
+
+func main() {
+  start := time.Now()
+  headers, err := makeRequest("http://localhost:1920")
   if err != nil {
-    println("Unmarshal failed")
-    println(err)
+    fmt.Println("%v", err)
   } else {
     fmt.Println("%v", headers)
     fmt.Println("time taken ", time.Since(start))
